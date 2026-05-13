@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Order</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 640px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h1 {
+            margin-top: 0;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .row strong {
+            color: #334155;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <div class="card">
+        <h1>Order Details - {{ order_sheet_no }}</h1>
+
+        <button onclick="window.print()" style="margin-bottom: 20px; padding: 10px 15px; background: #1e293b; color: white; border: none; cursor: pointer;">Print</button>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #1e293b; color: white;">
+                <th style="padding: 10px;">EBO</th>
+                <th style="padding: 10px;">Product</th>
+                <th style="padding: 10px;">Color</th>
+                <th style="padding: 10px;">Size</th>
+                <th style="padding: 10px;">Qty</th>
+                <th style="padding: 10px;">Status</th>
+                <th style="padding: 10px;">Order Date</th>
+                <th style="padding: 10px;">Complete Date</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.ebo }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.product }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.color }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.size }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.qty }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.status }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.order_date }}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ row.complete_date or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+
+</html>

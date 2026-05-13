@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Custom Order Generation</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-bottom: 30px;
+        }
+
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        input {
+            padding: 8px;
+            width: 100px;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        .freeze-btn {
+            background: #2563eb;
+        }
+
+        .generate-btn {
+            background: green;
+            padding: 12px 18px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            padding: 6px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .top-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .frozen-title {
+            margin-top: 50px;
+        }
+
+        .choices {
+            width: 250px;
+            min-width: 250px;
+        }
+
+        .choices__inner {
+            min-height: 45px;
+            border-radius: 8px;
+        }
+        .filter-controls {
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+        .filters{
+            display:flex;
+            flex-wrap:wrap;
+            gap:15px;
+            align-items:flex-end;
+            margin-bottom:20px;
+        }
+
+        .filter-field{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            min-width:220px;
+        }
+
+        .filter-field label{
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .choices{
+            width:220px !important;
+        }
+
+        .choices__inner{
+            min-height:44px !important;
+            border-radius:8px !important;
+        }
+
+        .filter-btn{
+            height:44px;
+            padding:0 18px;
+            border:none;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            cursor:pointer;
+        }
+        .filters{
+            display:flex;
+            flex-wrap:wrap;
+            gap:15px;
+            align-items:flex-end;
+            margin-bottom:20px;
+        }
+
+        .filter-field{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            min-width:220px;
+        }
+
+        .filter-field label{
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .filter-btn{
+            height:44px;
+            padding:0 18px;
+            border:none;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            cursor:pointer;
+        }
+
+        .filter-btn:hover{
+            background:#334155;
+        }
+
+    
+    </style>
+
+</head>
+
+
+
+<body data-page="base">
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <div class="top-box">
+
+        <h1>Custom Order Generation</h1>
+
+        <a class="generate-btn" href="/generate-order-sheet">
+
+            Generate Order Sheet
+
+        </a>
+
+    </div>
+
+    <!-- FILTERS -->
+
+    <form method="GET">
+        {% include 'components/common_filters.html' %}
+        
+
+    </form>
+
+    <!-- REQUIREMENT TABLE -->
+
+    <form method="POST" action="/freeze-selected">
+
+        {% for value in ebo_filter %}
+            <input type="hidden" name="filter_ebo" value="{{ value }}">
+        {% endfor %}
+        {% for value in product_filter %}
+            <input type="hidden" name="filter_product" value="{{ value }}">
+        {% endfor %}
+        {% for value in color_filter %}
+            <input type="hidden" name="filter_color" value="{{ value }}">
+        {% endfor %}
+        {% for value in size_filter %}
+            <input type="hidden" name="filter_size" value="{{ value }}">
+        {% endfor %}
+
+        <div style="margin-bottom:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button class="freeze-btn" type="submit" style="background:#2563eb;">
+                Freeze Selected
+            </button>
+            <button type="button" id="mark_all" style="background:#1e293b; color:white; border:none; padding:8px 12px; cursor:pointer;">
+                Mark All
+            </button>
+            <button type="button" id="clear_all" style="background:#64748b; color:white; border:none; padding:8px 12px; cursor:pointer;">
+                Clear All
+            </button>
+        </div>
+
+        <table>
+
+            <tr>
+                <th><input type="checkbox" id="select_all"></th>
+                <th>EBO</th>
+                <th>PRODUCT</th>
+                <th>COLOR</th>
+                <th>SIZE</th>
+                <th>BASE QTY</th>
+                <th>ACTUAL QTY</th>
+                <th>PROCESS QTY</th>
+                <th>FROZEN QTY</th>
+                <th>REQUIREMENT QTY</th>
+                <th>ORDER QTY</th>
+            </tr>
+
+            {% for r in report_data %}
+
+            <tr>
+
+                <td>
+                    <input type="checkbox" class="row-checkbox" name="selected_row" value="{{ loop.index0 }}">
+                </td>
+
+                <td>
+                    {{ r.ebo }}
+                    <input type="hidden" name="ebo" value="{{ r.ebo }}">
+                </td>
+
+                <td>
+                    {{ r.product }}
+                    <input type="hidden" name="product" value="{{ r.product }}">
+                </td>
+
+                <td>
+                    {{ r.color }}
+                    <input type="hidden" name="color" value="{{ r.color }}">
+                </td>
+
+                <td>
+                    {{ r.size }}
+                    <input type="hidden" name="size" value="{{ r.size }}">
+                </td>
+
+                <td>
+                    {{ r.base_qty }}
+                    <input type="hidden" name="base_qty" value="{{ r.base_qty }}">
+                </td>
+
+                <td>
+                    {{ r.actual_qty }}
+                    <input type="hidden" name="actual_qty" value="{{ r.actual_qty }}">
+                </td>
+
+                <td>
+                    {{ r.process_qty }}
+                    <input type="hidden" name="process_qty" value="{{ r.process_qty }}">
+                </td>
+
+                <td>
+                    {{ r.frozen_qty }}
+                    <input type="hidden" name="frozen_qty" value="{{ r.frozen_qty }}">
+                </td>
+
+                <td>
+                    {{ r.requirement_qty }}
+                    <input type="hidden" name="requirement_qty" value="{{ r.requirement_qty }}">
+                </td>
+
+                <td>
+                    <input type="number" name="order_qty" value="{{ r.order_qty }}" style="width:80px;">
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </form>
+
+    <script>
+        const selectAll = document.getElementById('select_all');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const markAllBtn = document.getElementById('mark_all');
+        const clearAllBtn = document.getElementById('clear_all');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = selectAll.checked;
+                });
+            });
+        }
+
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                if (selectAll) selectAll.checked = true;
+            });
+        }
+
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                if (selectAll) selectAll.checked = false;
+            });
+        }
+    </script>
+
+    <!-- FROZEN ORDERS -->
+
+    <h2 class="frozen-title">
+        Frozen Orders
+    </h2>
+
+    <table>
+
+        <tr>
+
+            <th>EBO</th>
+            <th>PRODUCT</th>
+            <th>COLOR</th>
+            <th>SIZE</th>
+
+            <th>BASE QTY</th>
+            <th>ACTUAL QTY</th>
+            <th>PROCESS QTY</th>
+
+            <th>REQ QTY</th>
+            <th>ORDER QTY</th>
+
+            <th>ACTION</th>
+
+        </tr>
+
+        {% for f in frozen_orders %}
+
+        <tr>
+
+            <td>{{ f.ebo }}</td>
+            <td>{{ f.product }}</td>
+            <td>{{ f.color }}</td>
+            <td>{{ f.size }}</td>
+
+            <td>{{ f.base_qty }}</td>
+            <td>{{ f.actual_qty }}</td>
+            <td>{{ f.process_qty }}</td>
+
+            <td>{{ f.requirement_qty }}</td>
+            <td>{{ f.order_qty }}</td>
+
+            <td>
+
+                <a class="remove-btn" href="/remove-frozen/{{ f.ebo }}/{{ f.product }}/{{ f.color }}/{{ f.size }}">
+
+                    Remove
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    
+
+</body>
+
+</html>

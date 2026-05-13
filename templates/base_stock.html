@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>BASE STOCK</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:20px;
+        }
+
+        .main-nav {
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-bottom:20px;
+        }
+
+        .main-nav a {
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            text-decoration:none;
+            font-size:0.95rem;
+        }
+
+        h1{
+            margin-bottom:20px;
+        }
+
+        .top-bar{
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+        }
+
+        .card{
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            width:200px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+
+        th{
+            background:#1e293b;
+            color:white;
+            padding:12px;
+        }
+
+        td{
+            padding:10px;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+            background:#f1f1f1;
+        }
+
+        .filters{
+            display:flex;
+            flex-wrap:wrap;
+            gap:15px;
+            align-items:flex-end;
+            margin-bottom:20px;
+        }
+
+        .filter-field{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            min-width:220px;
+        }
+
+        .filter-field label{
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .multi-select{
+            width:200px;
+        }
+
+        .choices{
+            width: 250px;
+        }
+
+        .btn{
+            background:#1e293b;
+            color:white;
+            border:none;
+            padding:10px 15px;
+            cursor:pointer;
+            border-radius:5px;
+            text-decoration:none;
+        }
+
+        .btn-danger{
+            background:red;
+        }
+
+        input{
+            padding:10px;
+        }
+
+        .filter-btn{
+            height:44px;
+            padding:0 18px;
+            border:none;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            cursor:pointer;
+        }
+
+    </style>
+
+</head>
+
+<body data-page="base">
+
+<div class="main-nav">
+    <a href="/base-stock">Base Stock</a>
+    <a href="/actual-stock">Actual Stock</a>
+    <a href="/requirement-report">Report</a>
+    <a href="/order-sheet">Order Sheet</a>
+    <a href="/custom-order-generation">Custom Order</a>
+    <a href="/users">Users</a>
+</div>
+
+<h1>BASE STOCK</h1>
+
+<div class="top-bar">    
+    <div class="card">
+        <h3>Total Qty</h3>
+        <h2>{{ total_qty }}</h2>
+    </div>
+</div>
+
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+
+    <input type="file" name="file">
+
+    <button class="btn" type="submit">
+        Upload Excel
+    </button>
+
+    <button class="btn btn-danger" name="replace" value="1" onclick="return confirm('Are you sure you want to replace all data?')">
+        Replace Data
+    </button>
+
+    <a class="btn" href="/export">
+        Export Excel
+    </a>
+
+</form>
+
+<br>
+
+<form method="GET">
+    {% include 'components/common_filters.html' %}
+    
+</form>
+
+<br>
+
+<form action="/add-stock" method="POST">
+
+<div class="filters">
+
+    <input name="ebo" placeholder="EBO">
+    <input name="product" placeholder="PRODUCT">
+    <input name="color" placeholder="COLOR">
+    <input name="size" placeholder="SIZE">
+    <input name="qty" placeholder="QTY">
+
+    <button class="btn" type="submit">
+        Add Stock
+    </button>
+
+</div>
+
+</form>
+
+<table>
+
+<tr>
+    <th>EBO</th>
+    <th>PRODUCT</th>
+    <th>COLOR</th>
+    <th>SIZE</th>
+    <th>QTY</th>
+    <th>ACTION</th>
+</tr>
+
+{% for r in rows %}
+
+<tr>
+
+    <td>{{ r.ebo }}</td>
+    <td>{{ r.product }}</td>
+    <td>{{ r.color }}</td>
+    <td>{{ r.size }}</td>
+    <td>{{ r.qty }}</td>
+
+    <td>
+
+        <a class="btn" href="/edit/{{ r.id }}">
+            Edit
+        </a>
+
+        <a class="btn btn-danger" href="/delete/{{ r.id }}">
+            Delete
+        </a>
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+
+</body>
+</html>

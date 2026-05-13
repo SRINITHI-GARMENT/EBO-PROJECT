@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Management</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .form-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        a.btn-add {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        a.btn-add:hover {
+            background: #059669;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .edit {
+            background: #ea580c;
+        }
+
+        .edit:hover {
+            background: #d94915;
+        }
+
+        .delete {
+            background: #ef4444;
+        }
+
+        .delete:hover {
+            background: #dc2626;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .role-admin {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .role-manager {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .role-viewer {
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <h1>User Management</h1>
+
+    <div class="form-box">
+        <a href="/add-user" class="btn-add">+ Add New User</a>
+    </div>
+
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+
+        {% if users %}
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <span class="role-badge role-{{ user.role }}">
+                        {{ user.role.upper() }}
+                    </span>
+                </td>
+                <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else '—' }}</td>
+                <td>
+                    <div class="actions">
+                        <a href="/edit-user/{{ user.id }}" class="btn edit">Edit</a>
+                        <a href="/delete-user/{{ user.id }}" class="btn delete" onclick="return confirm('Delete this user?')">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 20px;">No users found</td>
+        </tr>
+        {% endif %}
+    </table>
+
+</body>
+
+</html>

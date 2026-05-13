@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Edit User</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 900px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .permission-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #1e293b;
+        }
+
+        .permission-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .permission-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .permission-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        button,
+        a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        button[type="submit"] {
+            background: #10b981;
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .role-admin {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .role-manager {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .role-viewer {
+            background: #d1d5db;
+            color: #374151;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <div class="container">
+        <h1>Edit User: {{ user.username }}</h1>
+        <span class="role-badge role-{{ user.role }}">{{ user.role.upper() }}</span>
+
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role">
+                    <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>Viewer</option>
+                    <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+
+            <!-- BASE STOCK PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Base Stock Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_base_stock" name="can_view_base_stock"
+                            {% if user.can_view_base_stock %}checked{% endif %}>
+                        <label for="can_view_base_stock">View Base Stock</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_edit_base_stock" name="can_edit_base_stock"
+                            {% if user.can_edit_base_stock %}checked{% endif %}>
+                        <label for="can_edit_base_stock">Edit Base Stock</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_delete_base_stock" name="can_delete_base_stock"
+                            {% if user.can_delete_base_stock %}checked{% endif %}>
+                        <label for="can_delete_base_stock">Delete Base Stock</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_upload_base_stock" name="can_upload_base_stock"
+                            {% if user.can_upload_base_stock %}checked{% endif %}>
+                        <label for="can_upload_base_stock">Upload Base Stock</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTUAL STOCK PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Actual Stock Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_actual_stock" name="can_view_actual_stock"
+                            {% if user.can_view_actual_stock %}checked{% endif %}>
+                        <label for="can_view_actual_stock">View Actual Stock</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_edit_actual_stock" name="can_edit_actual_stock"
+                            {% if user.can_edit_actual_stock %}checked{% endif %}>
+                        <label for="can_edit_actual_stock">Edit Actual Stock</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_delete_actual_stock" name="can_delete_actual_stock"
+                            {% if user.can_delete_actual_stock %}checked{% endif %}>
+                        <label for="can_delete_actual_stock">Delete Actual Stock</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER SHEET PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Order Sheet Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_order_sheet" name="can_view_order_sheet"
+                            {% if user.can_view_order_sheet %}checked{% endif %}>
+                        <label for="can_view_order_sheet">View Order Sheet</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_add_order" name="can_add_order"
+                            {% if user.can_add_order %}checked{% endif %}>
+                        <label for="can_add_order">Add Orders</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_edit_order" name="can_edit_order"
+                            {% if user.can_edit_order %}checked{% endif %}>
+                        <label for="can_edit_order">Edit Orders</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_delete_order" name="can_delete_order"
+                            {% if user.can_delete_order %}checked{% endif %}>
+                        <label for="can_delete_order">Delete Orders</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_complete_order" name="can_complete_order"
+                            {% if user.can_complete_order %}checked{% endif %}>
+                        <label for="can_complete_order">Complete Orders</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REQUIREMENT REPORT PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Requirement Report Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_requirement" name="can_view_requirement"
+                            {% if user.can_view_requirement %}checked{% endif %}>
+                        <label for="can_view_requirement">View Requirement Report</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_export_requirement" name="can_export_requirement"
+                            {% if user.can_export_requirement %}checked{% endif %}>
+                        <label for="can_export_requirement">Export Reports</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUSTOM ORDER PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Custom Order Generation Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_custom_order" name="can_view_custom_order"
+                            {% if user.can_view_custom_order %}checked{% endif %}>
+                        <label for="can_view_custom_order">View Custom Order Page</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_generate_order" name="can_generate_order"
+                            {% if user.can_generate_order %}checked{% endif %}>
+                        <label for="can_generate_order">Generate Orders</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER MANAGEMENT PERMISSIONS -->
+            <div class="permission-section">
+                <h3>Administrative Permissions</h3>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_manage_users" name="can_manage_users"
+                            {% if user.can_manage_users %}checked{% endif %}>
+                        <label for="can_manage_users">Manage Users & Permissions</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit">Save Changes</button>
+                <a href="/users" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>

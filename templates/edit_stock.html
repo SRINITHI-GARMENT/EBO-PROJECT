@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Edit Stock</title>
+</head>
+
+<body>
+
+    <h1>Edit Stock</h1>
+
+    <form method="POST">
+
+        <input name="ebo" value="{{ row.ebo }}">
+        <input name="product" value="{{ row.product }}">
+        <input name="color" value="{{ row.color }}">
+        <input name="size" value="{{ row.size }}">
+        <input name="qty" value="{{ row.qty }}">
+
+        <button type="submit">
+            Update
+        </button>
+
+    </form>
+
+</body>
+
+</html>
