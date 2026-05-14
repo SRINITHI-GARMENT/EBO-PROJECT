@@ -196,7 +196,8 @@
 
         </table>
 
-        {% for row in rows %}
+        {% for product, colors in grouped_data.items() %}
+
 
         <div class="product-title">
             PRODUCT: {{ product }}
@@ -209,13 +210,9 @@
                 <tr>
                     <th>COLOR</th>
                     <th>EBO</th>
-                    <th>S</th>
-                    <th>M</th>
-                    <th>L</th>
-                    <th>XL</th>
-                    <th>2XL</th>
-                    <th>3XL</th>
-                    <th>4XL</th>
+                    {% for size in all_sizes %}
+                    <th>{{ size }}</th>
+                    {% endfor %}
                     <th>TOTAL</th>
                 </tr>
 
@@ -223,38 +220,26 @@
 
             <tbody>
 
-                {% for color, color_rows in product_rows.items() %}
+                {% for color, ebos in colors.items() %}
 
-                    {% for row in color_rows %}
+                    {% for ebo, ebo_data in ebos.items() %}
 
                     <tr>
 
                         {% if loop.first %}
-                        <td class="color-cell" rowspan="{{ color_rows|length + 1 }}">
+                        <td class="color-cell" rowspan="{{ ebos|length }}">
                             {{ color }}
                         </td>
                         {% endif %}
 
-                        <td>{{ row.ebo }}</td>
+                        <td>{{ ebo_data.ebo }}</td>
 
-                        <td>{{ row.s or '' }}</td>
-                        <td>{{ row.m or '' }}</td>
-                        <td>{{ row.l or '' }}</td>
-                        <td>{{ row.xl or '' }}</td>
-                        <td>{{ row.xxl or '' }}</td>
-                        <td>{{ row.xxxl or '' }}</td>
-                        <td>{{ row.xxxxl or '' }}</td>
+                        {% for size in all_sizes %}
+                        <td>{{ ebo_data.sizes.get(size, '') }}</td>
+                        {% endfor %}
 
                         <td>
-                            {{
-                                (row.s or 0)
-                                + (row.m or 0)
-                                + (row.l or 0)
-                                + (row.xl or 0)
-                                + (row.xxl or 0)
-                                + (row.xxxl or 0)
-                                + (row.xxxxl or 0)
-                            }}
+                            {{ ebo_data.sizes.values() | sum }}
                         </td>
 
                     </tr>
@@ -265,64 +250,20 @@
 
                         <td>TOTAL</td>
 
+                        {% for size in all_sizes %}
                         <td>
-                            {{
-                                color_rows | sum(attribute='s')
-                            }}
+                            {{ colors.values() | map(attribute='values') | flatten | map(attribute='sizes') | map('get', size) | select | sum }}
                         </td>
+                        {% endfor %}
 
                         <td>
-                            {{
-                                color_rows | sum(attribute='m')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                color_rows | sum(attribute='l')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                color_rows | sum(attribute='xl')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                color_rows | sum(attribute='xxl')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                color_rows | sum(attribute='xxxl')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                color_rows | sum(attribute='xxxxl')
-                            }}
-                        </td>
-
-                        <td>
-                            {{
-                                (color_rows | sum(attribute='s'))
-                                + (color_rows | sum(attribute='m'))
-                                + (color_rows | sum(attribute='l'))
-                                + (color_rows | sum(attribute='xl'))
-                                + (color_rows | sum(attribute='xxl'))
-                                + (color_rows | sum(attribute='xxxl'))
-                                + (color_rows | sum(attribute='xxxxl'))
-                            }}
+                            {{ grand_totals[product].values() | sum }}
                         </td>
 
                     </tr>
 
                     <tr class="blank-row">
-                        <td colspan="10"></td>
+                        <td colspan="{{ all_sizes|length + 3 }}"></td>
                     </tr>
 
                 {% endfor %}
@@ -331,24 +272,12 @@
 
                     <td colspan="2">GRAND TOTAL</td>
 
-                    <td>{{ grand_totals[product].s }}</td>
-                    <td>{{ grand_totals[product].m }}</td>
-                    <td>{{ grand_totals[product].l }}</td>
-                    <td>{{ grand_totals[product].xl }}</td>
-                    <td>{{ grand_totals[product].xxl }}</td>
-                    <td>{{ grand_totals[product].xxxl }}</td>
-                    <td>{{ grand_totals[product].xxxxl }}</td>
+                    {% for size in all_sizes %}
+                    <td>{{ grand_totals[product].get(size, 0) }}</td>
+                    {% endfor %}
 
                     <td>
-                        {{
-                            grand_totals[product].s
-                            + grand_totals[product].m
-                            + grand_totals[product].l
-                            + grand_totals[product].xl
-                            + grand_totals[product].xxl
-                            + grand_totals[product].xxxl
-                            + grand_totals[product].xxxxl
-                        }}
+                        {{ grand_totals[product].values() | sum }}
                     </td>
 
                 </tr>
