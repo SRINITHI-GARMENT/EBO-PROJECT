@@ -176,6 +176,7 @@
 
 <!-- EXCEL UPLOAD -->
 
+{% if session.get('can_edit_actual_stock', False) %}
 <form action="/upload-actual-stock" method="POST" enctype="multipart/form-data">
 
     <input type="file" name="file">
@@ -193,11 +194,12 @@
         Replace Whole Data
     </button>
 
-    <a class="btn" href="/export-actual-stock">
-        Export Excel
-    </a>
-
 </form>
+{% endif %}
+
+<a class="btn" href="/export-actual-stock">
+    Export Excel
+</a>
 
 <br>
 
@@ -213,11 +215,25 @@
 
 <!-- ADD STOCK -->
 
+{% if session.get('can_edit_actual_stock', False) %}
 <form action="/add-actual-stock" method="POST">
 
+<div class="filters">
 
+    <input name="ebo" placeholder="EBO">
+    <input name="product" placeholder="PRODUCT">
+    <input name="color" placeholder="COLOR">
+    <input name="size" placeholder="SIZE">
+    <input name="actual_qty" placeholder="ACTUAL QTY">
+
+    <button class="btn" type="submit">
+        Add Actual Stock
+    </button>
+
+</div>
 
 </form>
+{% endif %}
 
 <!-- TABLE -->
 
@@ -246,10 +262,13 @@
 
     <td>
 
+        {% if session.get('can_edit_actual_stock', False) %}
         <a class="btn" href="/edit-actual-stock/{{ r.id }}">
             Edit
         </a>
+        {% endif %}
 
+        {% if session.get('can_delete_actual_stock', False) %}
         <a 
             class="btn btn-danger"
             href="/delete-actual-stock/{{ r.id }}?{{ request.query_string.decode() }}"
@@ -257,6 +276,7 @@
         >
             Delete
         </a>
+        {% endif %}
 
     </td>
 

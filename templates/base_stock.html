@@ -157,6 +157,7 @@
 </div>
 
 
+{% if session.get('can_upload_base_stock', False) %}
 <form action="/upload" method="POST" enctype="multipart/form-data">
 
     <input type="file" name="file">
@@ -169,11 +170,12 @@
         Replace Data
     </button>
 
-    <a class="btn" href="/export">
-        Export Excel
-    </a>
-
 </form>
+{% endif %}
+
+<a class="btn" href="/export">
+    Export Excel
+</a>
 
 <br>
 
@@ -184,6 +186,7 @@
 
 <br>
 
+{% if session.get('can_edit_base_stock', False) %}
 <form action="/add-stock" method="POST">
 
 <div class="filters">
@@ -201,6 +204,7 @@
 </div>
 
 </form>
+{% endif %}
 
 <table>
 
@@ -225,13 +229,17 @@
 
     <td>
 
+        {% if session.get('can_edit_base_stock', False) %}
         <a class="btn" href="/edit/{{ r.id }}">
             Edit
         </a>
+        {% endif %}
 
+        {% if session.get('can_delete_base_stock', False) %}
         <a class="btn btn-danger" href="/delete/{{ r.id }}">
             Delete
         </a>
+        {% endif %}
 
     </td>
 

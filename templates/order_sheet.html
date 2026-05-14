@@ -123,6 +123,7 @@
 
     <!-- ADD ORDER -->
 
+    {% if session.get('can_add_order', False) %}
     <form action="/add-order" method="POST">
 
         <div class="form-box">
@@ -140,18 +141,23 @@
         </div>
 
     </form>
+    {% endif %}
 
     <!-- BATCH ACTIONS -->
 
     <form action="/batch-order-action" method="POST" id="batch-action-form">
 
         <div class="form-box">
+            {% if session.get('can_complete_order', False) %}
             <button type="submit" name="action" value="complete" class="complete">
                 Complete Selected
             </button>
+            {% endif %}
+            {% if session.get('can_delete_order', False) %}
             <button type="submit" name="action" value="delete" class="delete" onclick="return confirm('Delete selected orders?')">
                 Delete Selected
             </button>
+            {% endif %}
         </div>
 
         <!-- TABLE -->
@@ -203,9 +209,11 @@ completed
                     <a class="btn view" href="/view-order/{{ r.id }}">
                         View
                     </a>
+                    {% if session.get('can_edit_order', False) %}
                     <a class="btn edit" href="/edit-order/{{ r.id }}">
                         Edit
                     </a>
+                    {% endif %}
                 </td>
 
         </tr>

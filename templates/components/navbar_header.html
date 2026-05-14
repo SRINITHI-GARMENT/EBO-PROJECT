@@ -2,6 +2,7 @@
     <div class="user-info">
         <span class="username">{{ session.get('username', 'User') }}</span>
         <span class="role-badge role-{{ session.get('role', 'viewer') }}">{{ session.get('role', 'viewer').upper() }}</span>
+        <a href="/change-password" class="btn-change-password">Change Password</a>
         <a href="/logout" class="btn-logout">Logout</a>
     </div>
 </div>
@@ -45,9 +46,36 @@
         background: #ea580c;
     }
 
-    .role-badge.role-viewer {
+    .btn-change-password {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
         background: #0891b2;
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
     }
+
+    .btn-change-password:hover {
+        background: #0e7490;
+    }
+
+    .btn-logout {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        background: #dc2626;
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .btn-logout:hover {
+        background: #b91c1c;
+    }
+
 
     .btn-logout {
         display: inline-block;

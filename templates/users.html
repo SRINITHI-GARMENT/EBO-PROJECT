@@ -147,7 +147,9 @@
     <h1>User Management</h1>
 
     <div class="form-box">
+        {% if session.get('can_manage_users', False) %}
         <a href="/add-user" class="btn-add">+ Add New User</a>
+        {% endif %}
     </div>
 
     <table>
@@ -172,8 +174,10 @@
                 <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else '—' }}</td>
                 <td>
                     <div class="actions">
+                        {% if session.get('can_manage_users', False) %}
                         <a href="/edit-user/{{ user.id }}" class="btn edit">Edit</a>
                         <a href="/delete-user/{{ user.id }}" class="btn delete" onclick="return confirm('Delete this user?')">Delete</a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

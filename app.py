@@ -33,6 +33,18 @@ def login_required(f):
     return decorated_function
 
 
+# ================= PERMISSION CHECK =================
+def require_permission(permission):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if permission not in session or not session[permission]:
+                return "Access denied: insufficient permissions", 403
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
 # ================= USER MODEL =================
 class User(db.Model):
     __tablename__ = "users"
@@ -144,6 +156,7 @@ def base_stock():
 # ================= ADD STOCK =================
 @app.route("/add-stock", methods=["POST"])
 @login_required
+@require_permission("can_edit_base_stock")
 def add_stock():
 
     row = BaseStock(
@@ -163,6 +176,7 @@ def add_stock():
 # ================= DELETE =================
 @app.route("/delete/<int:id>")
 @login_required
+@require_permission("can_delete_base_stock")
 def delete_stock(id):
 
     row = BaseStock.query.get(id)
@@ -177,6 +191,7 @@ def delete_stock(id):
 # ================= EDIT =================
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 @login_required
+@require_permission("can_edit_base_stock")
 def edit_stock(id):
 
     row = BaseStock.query.get_or_404(id)
@@ -199,6 +214,7 @@ def edit_stock(id):
 # ================= EXCEL UPLOAD =================
 @app.route("/upload", methods=["POST"])
 @login_required
+@require_permission("can_upload_base_stock")
 def upload_excel():
 
     file = request.files["file"]
@@ -346,6 +362,7 @@ def actual_stock():
 
 @app.route("/add-actual-stock", methods=["POST"])
 @login_required
+@require_permission("can_edit_actual_stock")
 def add_actual_stock():
 
     row = ActualStock(
@@ -366,6 +383,7 @@ def add_actual_stock():
 
 @app.route("/delete-actual-stock/<int:id>")
 @login_required
+@require_permission("can_delete_actual_stock")
 def delete_actual_stock(id):
 
     row = ActualStock.query.get(id)
@@ -381,6 +399,7 @@ def delete_actual_stock(id):
 
 @app.route("/edit-actual-stock/<int:id>", methods=["GET", "POST"])
 @login_required
+@require_permission("can_edit_actual_stock")
 def edit_actual_stock(id):
 
     row = ActualStock.query.get_or_404(id)
@@ -407,6 +426,7 @@ def edit_actual_stock(id):
 
 @app.route("/upload-actual-stock", methods=["POST"])
 @login_required
+@require_permission("can_edit_actual_stock")
 def upload_actual_stock():
 
     file = request.files["file"]
@@ -489,6 +509,7 @@ def export_actual_stock():
 
 @app.route("/requirement-report")
 @login_required
+@require_permission("can_view_requirement")
 def requirement_report():
 
     group_by = request.args.get("group_by", "ebo")
@@ -627,6 +648,7 @@ def requirement_report():
 
 @app.route("/export-requirement-report")
 @login_required
+@require_permission("can_export_requirement")
 def export_requirement_report():
     group_by = request.args.get("group_by", "ebo")
     include_process = request.args.get("include_process", "yes")
@@ -756,6 +778,7 @@ def next_order_sheet_no():
 
 @app.route("/add-order", methods=["POST"])
 @login_required
+@require_permission("can_add_order")
 def add_order():
 
     row = OrderSheet(
@@ -785,6 +808,7 @@ def add_order():
 
 @app.route("/delete-order/<int:id>")
 @login_required
+@require_permission("can_delete_order")
 def delete_order(id):
 
     row = OrderSheet.query.get(id)
@@ -850,6 +874,7 @@ def batch_order_action():
 
 @app.route("/edit-order/<int:id>", methods=["GET", "POST"])
 @login_required
+@require_permission("can_edit_order")
 def edit_order(id):
 
     row = OrderSheet.query.get_or_404(id)
@@ -875,6 +900,7 @@ def edit_order(id):
 
 @app.route("/custom-order-generation")
 @login_required
+@require_permission("can_view_custom_order")
 def custom_order_generation():
 
     if "frozen_orders" not in session:
@@ -1176,6 +1202,7 @@ def remove_frozen(
 
 @app.route("/generate-order-sheet")
 @login_required
+@require_permission("can_generate_order")
 def generate_order_sheet():
 
     frozen_orders = session.get("frozen_orders", [])
@@ -1386,6 +1413,7 @@ def get_dependent_filters():
 
 @app.route("/users")
 @login_required
+@require_permission("can_manage_users")
 def users():
     users_list = User.query.all()
     return render_template("users.html", users=users_list)
@@ -1393,6 +1421,7 @@ def users():
 
 @app.route("/add-user", methods=["GET", "POST"])
 @login_required
+@require_permission("can_manage_users")
 def add_user():
     if request.method == "POST":
         username = request.form.get("username")
@@ -1450,6 +1479,7 @@ def add_user():
 
 @app.route("/edit-user/<int:id>", methods=["GET", "POST"])
 @login_required
+@require_permission("can_manage_users")
 def edit_user(id):
     user = User.query.get_or_404(id)
     
@@ -1488,14 +1518,31 @@ def edit_user(id):
     return render_template("edit_user.html", user=user)
 
 
-@app.route("/delete-user/<int:id>")
+@app.route("/change-password", methods=["GET", "POST"])
 @login_required
-def delete_user(id):
-    user = User.query.get(id)
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-    return redirect("/users")
+def change_password():
+    error = None
+    success = None
+    
+    if request.method == "POST":
+        current_password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+        
+        user = User.query.get(session["user_id"])
+        
+        if not check_password_hash(user.password, current_password):
+            error = "Current password is incorrect"
+        elif new_password != confirm_password:
+            error = "New passwords do not match"
+        elif len(new_password) < 6:
+            error = "New password must be at least 6 characters long"
+        else:
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            success = "Password changed successfully"
+    
+    return render_template("change_password.html", error=error, success=success)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -1528,6 +1575,31 @@ def login():
                 session["user_id"] = user.id
                 session["username"] = user.username
                 session["role"] = user.role
+                
+                # Store permissions in session
+                session["can_view_base_stock"] = user.can_view_base_stock
+                session["can_edit_base_stock"] = user.can_edit_base_stock
+                session["can_delete_base_stock"] = user.can_delete_base_stock
+                session["can_upload_base_stock"] = user.can_upload_base_stock
+                
+                session["can_view_actual_stock"] = user.can_view_actual_stock
+                session["can_edit_actual_stock"] = user.can_edit_actual_stock
+                session["can_delete_actual_stock"] = user.can_delete_actual_stock
+                
+                session["can_view_order_sheet"] = user.can_view_order_sheet
+                session["can_add_order"] = user.can_add_order
+                session["can_edit_order"] = user.can_edit_order
+                session["can_delete_order"] = user.can_delete_order
+                session["can_complete_order"] = user.can_complete_order
+                
+                session["can_view_requirement"] = user.can_view_requirement
+                session["can_export_requirement"] = user.can_export_requirement
+                
+                session["can_view_custom_order"] = user.can_view_custom_order
+                session["can_generate_order"] = user.can_generate_order
+                
+                session["can_manage_users"] = user.can_manage_users
+                
                 return redirect("/base-stock")
 
         error = "Invalid username or password"
