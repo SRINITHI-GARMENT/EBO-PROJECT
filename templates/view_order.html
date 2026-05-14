@@ -227,20 +227,21 @@
                     <tr>
 
                         {% if loop.first %}
-                        <td class="color-cell" rowspan="{{ ebos|length }}">
+                        <td class="color-cell" rowspan="{{ ebos|length + 1 }}">
                             {{ color }}
                         </td>
                         {% endif %}
 
                         <td>{{ ebo_data.ebo }}</td>
 
+                        {% set row_total = 0 %}
                         {% for size in all_sizes %}
-                        <td>{{ ebo_data.sizes.get(size, '') }}</td>
+                            {% set qty = ebo_data.sizes.get(size, 0) %}
+                            <td>{{ qty if qty else '' }}</td>
+                            {% set row_total = row_total + qty %}
                         {% endfor %}
 
-                        <td>
-                            {{ ebo_data.sizes.values() | sum }}
-                        </td>
+                        <td>{{ row_total }}</td>
 
                     </tr>
 
@@ -251,14 +252,18 @@
                         <td>TOTAL</td>
 
                         {% for size in all_sizes %}
-                        <td>
-                            {{ colors.values() | map(attribute='values') | flatten | map(attribute='sizes') | map('get', size) | select | sum }}
-                        </td>
+                            {% set size_total = 0 %}
+                            {% for ebo_data in ebos.values() %}
+                                {% set size_total = size_total + (ebo_data.sizes.get(size, 0) or 0) %}
+                            {% endfor %}
+                            <td>{{ size_total }}</td>
                         {% endfor %}
 
-                        <td>
-                            {{ grand_totals[product].values() | sum }}
-                        </td>
+                        {% set product_total = 0 %}
+                        {% for val in grand_totals[product].values() %}
+                            {% set product_total = product_total + val %}
+                        {% endfor %}
+                        <td>{{ product_total }}</td>
 
                     </tr>
 
@@ -266,6 +271,11 @@
                         <td colspan="{{ all_sizes|length + 3 }}"></td>
                     </tr>
 
+                {% endfor %}
+
+                {% set grand_total_sum = 0 %}
+                {% for val in grand_totals[product].values() %}
+                    {% set grand_total_sum = grand_total_sum + val %}
                 {% endfor %}
 
                 <tr class="grand-total">
@@ -276,9 +286,7 @@
                     <td>{{ grand_totals[product].get(size, 0) }}</td>
                     {% endfor %}
 
-                    <td>
-                        {{ grand_totals[product].values() | sum }}
-                    </td>
+                    <td>{{ grand_total_sum }}</td>
 
                 </tr>
 
