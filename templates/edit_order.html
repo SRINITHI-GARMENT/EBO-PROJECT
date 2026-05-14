@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Edit Order</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .form-box {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #1e293b;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include "components/navbar_header.html" %}
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <div class="form-box">
+        <h1>Edit Order</h1>
+
+        <form method="POST">
+
+            <input name="ebo" value="{{ row.ebo }}" placeholder="EBO">
+            <input name="product" value="{{ row.product }}" placeholder="PRODUCT">
+            <input name="color" value="{{ row.color }}" placeholder="COLOR">
+            <input name="size" value="{{ row.size }}" placeholder="SIZE">
+            <input name="qty" value="{{ row.qty }}" placeholder="QTY">
+
+            <button type="submit">
+                Update
+            </button>
+
+        </form>
+    </div>
+
+</body>
+
+</html>

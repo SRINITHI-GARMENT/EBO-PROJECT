@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>REQUIREMENT REPORT</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-bottom:20px;
+        }
+
+        .main-nav a {
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            text-decoration:none;
+            font-size:0.95rem;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 180px;
+        }
+
+        .filter-field label {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .multi-select {
+            width: 220px;
+        }
+
+        .choices {
+            width: 250px;
+        }
+
+        select {
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .negative {
+            background: #ffcccc;
+        }
+
+        .positive {
+            background: #ccffcc;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    {% include "components/navbar_header.html" %}
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <h1>REQUIREMENT REPORT</h1>
+
+    <form method="GET">
+
+        <div class="filters">
+
+            <div class="filter-field">
+                <label for="group_by">Group By</label>
+                <select id="group_by" name="group_by">
+                    <option value="ebo" {% if group_by == 'ebo' %}selected{% endif %}>EBO</option>
+                    <option value="product" {% if group_by == 'product' %}selected{% endif %}>PRODUCT</option>
+                    <option value="color" {% if group_by == 'color' %}selected{% endif %}>COLOR</option>
+                    <option value="size" {% if group_by == 'size' %}selected{% endif %}>SIZE</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="ebo">EBO Filter</label>
+                <select id="ebo" name="ebo" multiple class="multi-select">
+                    {% for e in ebos %}
+                        <option value="{{ e[0] }}" {% if e[0] in ebos_selected %}selected{% endif %}>{{ e[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="product">Product Filter</label>
+                <select id="product" name="product" multiple class="multi-select">
+                    {% for p in products %}
+                        <option value="{{ p[0] }}" {% if p[0] in products_selected %}selected{% endif %}>{{ p[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="color">Color Filter</label>
+                <select id="color" name="color" multiple class="multi-select">
+                    {% for c in colors %}
+                        <option value="{{ c[0] }}" {% if c[0] in colors_selected %}selected{% endif %}>{{ c[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="size">Size Filter</label>
+                <select id="size" name="size" multiple class="multi-select">
+                    {% for s in sizes %}
+                        <option value="{{ s[0] }}" {% if s[0] in sizes_selected %}selected{% endif %}>{{ s[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="include_process">Process Orders</label>
+                <select id="include_process" name="include_process">
+                    <option value="yes" {% if include_process == 'yes' %}selected{% endif %}>INCLUDING PROCESS ORDERS</option>
+                    <option value="no" {% if include_process == 'no' %}selected{% endif %}>EXCLUDING PROCESS ORDERS</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="status_filter">Show</label>
+                <select id="status_filter" name="status_filter">
+                    <option value="both" {% if status_filter == 'both' %}selected{% endif %}>BOTH</option>
+                    <option value="requirements" {% if status_filter == 'requirements' %}selected{% endif %}>REQUIREMENTS</option>
+                    <option value="excess" {% if status_filter == 'excess' %}selected{% endif %}>EXCESS</option>
+                </select>
+            </div>
+
+            <button type="submit">
+                Generate Report
+            </button>
+
+            <a class="btn" href="/export-requirement-report?group_by={{ group_by }}&include_process={{ include_process }}&status_filter={{ status_filter }}{% for e in ebos_selected %}&ebo={{ e }}{% endfor %}{% for p in products_selected %}&product={{ p }}{% endfor %}{% for c in colors_selected %}&color={{ c }}{% endfor %}{% for s in sizes_selected %}&size={{ s }}{% endfor %}">
+                Export Excel
+            </a>
+
+        </div>
+
+    </form>
+
+    <table>
+
+        <tr>
+
+            <th>{{ group_by.upper() }}</th>
+
+            {% if group_by == 'ebo' %}
+                <th>PRODUCT</th>
+                <th>COLOR</th>
+                <th>SIZE</th>
+            {% elif group_by == 'product' %}
+                <th>EBO</th>
+                <th>COLOR</th>
+                <th>SIZE</th>
+            {% elif group_by == 'color' %}
+                <th>EBO</th>
+                <th>PRODUCT</th>
+                <th>SIZE</th>
+            {% elif group_by == 'size' %}
+                <th>EBO</th>
+                <th>PRODUCT</th>
+                <th>COLOR</th>
+            {% else %}
+                <th>PRODUCT</th>
+                <th>COLOR</th>
+                <th>SIZE</th>
+            {% endif %}
+
+            <th>BASE QTY</th>
+            <th>ACTUAL QTY</th>
+            <th>PROCESS QTY</th>
+
+            <th>REQUIREMENT QTY</th>
+            <th>EXCESS QTY</th>
+
+        </tr>
+
+        {% for r in report_data %}
+
+        <tr class="
+{% if r.requirement_qty > 0 %}
+negative
+{% else %}
+positive
+{% endif %}
+">
+
+            <td>{{ r.group_value }}</td>
+
+            {% if group_by == 'ebo' %}
+                <td>{{ r.product }}</td>
+                <td>{{ r.color }}</td>
+                <td>{{ r.size }}</td>
+            {% elif group_by == 'product' %}
+                <td>{{ r.ebo }}</td>
+                <td>{{ r.color }}</td>
+                <td>{{ r.size }}</td>
+            {% elif group_by == 'color' %}
+                <td>{{ r.ebo }}</td>
+                <td>{{ r.product }}</td>
+                <td>{{ r.size }}</td>
+            {% elif group_by == 'size' %}
+                <td>{{ r.ebo }}</td>
+                <td>{{ r.product }}</td>
+                <td>{{ r.color }}</td>
+            {% else %}
+                <td>{{ r.product }}</td>
+                <td>{{ r.color }}</td>
+                <td>{{ r.size }}</td>
+            {% endif %}
+
+            <td>{{ r.base_qty }}</td>
+            <td>{{ r.actual_qty }}</td>
+            <td>{{ r.process_qty }}</td>
+
+            <td>{{ r.requirement_qty }}</td>
+            <td>{{ r.excess_qty }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <script>
+
+    let eboChoice;
+    let productChoice;
+    let colorChoice;
+    let sizeChoice;
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        eboChoice = new Choices('#ebo', {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false
+        });
+
+        productChoice = new Choices('#product', {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false
+        });
+
+        colorChoice = new Choices('#color', {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false
+        });
+
+        sizeChoice = new Choices('#size', {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false
+        });
+
+        document.getElementById("ebo")
+            .addEventListener("change", loadFilters);
+
+        document.getElementById("product")
+            .addEventListener("change", loadFilters);
+
+        document.getElementById("color")
+            .addEventListener("change", loadFilters);
+
+        document.getElementById("size")
+            .addEventListener("change", loadFilters);
+
+    });
+
+    function loadFilters() {
+
+        const ebo = Array.from(
+            document.getElementById("ebo").selectedOptions
+        ).map(o => o.value);
+
+        const product = Array.from(
+            document.getElementById("product").selectedOptions
+        ).map(o => o.value);
+
+        const color = Array.from(
+            document.getElementById("color").selectedOptions
+        ).map(o => o.value);
+
+        const params = new URLSearchParams();
+
+        ebo.forEach(v => params.append("ebo", v));
+        product.forEach(v => params.append("product", v));
+        color.forEach(v => params.append("color", v));
+
+        fetch("/get-dependent-filters?" + params.toString())
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                updateChoices(
+                    productChoice,
+                    data.products
+                );
+
+                updateChoices(
+                    colorChoice,
+                    data.colors
+                );
+
+                updateChoices(
+                    sizeChoice,
+                    data.sizes
+                );
+
+            });
+    }
+
+    function updateChoices(choiceInstance, values) {
+
+        // SAVE CURRENT SELECTED VALUES
+        const selectedValues = choiceInstance.getValue(true);
+
+        // CLEAR DROPDOWN
+        choiceInstance.clearStore();
+
+        // RELOAD OPTIONS
+        choiceInstance.setChoices(
+
+            values.map(v => ({
+                value: v,
+                label: v,
+                selected: selectedValues.includes(v)
+            })),
+
+            'value',
+            'label',
+            true
+        );
+    }
+
+    </script>
+
+</body>
+
+</html>

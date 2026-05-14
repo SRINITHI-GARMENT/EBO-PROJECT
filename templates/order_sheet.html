@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>ORDER SHEET</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-bottom:20px;
+        }
+
+        .main-nav a {
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            text-decoration:none;
+            font-size:0.95rem;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .form-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .under {
+            background: #fff0b3;
+        }
+
+        .completed {
+            background: #ccffcc;
+        }
+
+        .btn {
+            padding: 6px 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .view {
+            background: #2563eb;
+        }
+
+        .edit {
+            background: #ea580c;
+        }
+
+        .delete {
+            background: red;
+        }
+
+        .complete {
+            background: green;
+        }
+    </style>
+
+</head>
+
+<body data-page="base">
+
+    {% include "components/navbar_header.html" %}
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <h1>ORDER SHEET</h1>
+
+    
+
+    <!-- ADD ORDER -->
+
+    <form action="/add-order" method="POST">
+
+        <div class="form-box">
+
+            <input name="ebo" placeholder="EBO">
+            <input name="product" placeholder="PRODUCT">
+            <input name="color" placeholder="COLOR">
+            <input name="size" placeholder="SIZE">
+            <input name="qty" placeholder="QTY">
+
+            <button type="submit">
+                Add Order
+            </button>
+
+        </div>
+
+    </form>
+
+    <!-- BATCH ACTIONS -->
+
+    <form action="/batch-order-action" method="POST" id="batch-action-form">
+
+        <div class="form-box">
+            <button type="submit" name="action" value="complete" class="complete">
+                Complete Selected
+            </button>
+            <button type="submit" name="action" value="delete" class="delete" onclick="return confirm('Delete selected orders?')">
+                Delete Selected
+            </button>
+        </div>
+
+        <!-- TABLE -->
+
+        <table>
+
+            <tr>
+
+                <th><input type="checkbox" id="select-all"></th>
+                <th>ORDER NO</th>
+
+            <th>EBO</th>
+            <th>PRODUCT</th>
+            <th>COLOR</th>
+            <th>SIZE</th>
+
+            <th>QTY</th>
+
+            <th>STATUS</th>
+
+            <th>ORDER DATE</th>
+            <th>COMPLETE DATE</th>
+
+            <th>ACTION</th>
+
+        </tr>
+
+        {% for r in rows %}
+
+        <tr class="
+{% if r.status == 'UNDER PROCESS' %}
+under
+{% else %}
+completed
+{% endif %}
+">
+
+                <td><input type="checkbox" class="select-row" name="selected_ids" value="{{ r.id }}"></td>
+                <td>{{ r.order_sheet_no }}</td>
+                <td>{{ r.ebo }}</td>
+                <td>{{ r.product }}</td>
+                <td>{{ r.color }}</td>
+                <td>{{ r.size }}</td>
+                <td>{{ r.qty }}</td>
+                <td>{{ r.status }}</td>
+                <td>{{ r.order_date }}</td>
+                <td>{{ r.complete_date }}</td>
+                <td>
+                    <a class="btn view" href="/view-order/{{ r.id }}">
+                        View
+                    </a>
+                    <a class="btn edit" href="/edit-order/{{ r.id }}">
+                        Edit
+                    </a>
+                </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </table>
+
+    </form>
+
+    <script>
+        const selectAll = document.getElementById('select-all');
+        const rowCheckboxes = document.querySelectorAll('.select-row');
+
+        selectAll?.addEventListener('change', function () {
+            rowCheckboxes.forEach(cb => cb.checked = this.checked);
+        });
+    </script>
+
+</body>
+
+</html>

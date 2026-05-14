@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>ACTUAL STOCK</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:20px;
+        }
+
+        .main-nav {
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-bottom:20px;
+        }
+
+        .main-nav a {
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            text-decoration:none;
+            font-size:0.95rem;
+        }
+
+        h1{
+            margin-bottom:20px;
+        }
+
+        .top-bar{
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+        }
+
+        .card{
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            width:220px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+
+        th{
+            background:#1e293b;
+            color:white;
+            padding:12px;
+        }
+
+        td{
+            padding:10px;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+            background:#f1f1f1;
+        }
+
+        .filters{
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+        }
+
+        .btn{
+            background:#1e293b;
+            color:white;
+            border:none;
+            padding:10px 15px;
+            cursor:pointer;
+            border-radius:5px;
+            text-decoration:none;
+        }
+
+        .btn-danger{
+            background:red;
+        }
+
+        input{
+            padding:10px;
+        }
+
+        .choices{
+            width:250px;
+            min-width:250px;
+        }
+
+        .choices__inner{
+            min-height:45px;
+            border-radius:8px;
+        }
+        .filters{
+            display:flex;
+            flex-wrap:wrap;
+            gap:15px;
+            align-items:flex-end;
+            margin-bottom:20px;
+        }
+
+        .filter-field{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            min-width:220px;
+        }
+
+        .filter-field label{
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .choices{
+            width:220px !important;
+        }
+
+        .choices__inner{
+            min-height:44px !important;
+            border-radius:8px !important;
+        }
+
+        .filter-btn{
+            height:44px;
+            padding:0 18px;
+            border:none;
+            border-radius:8px;
+            background:#1e293b;
+            color:white;
+            cursor:pointer;
+        }
+
+    </style>
+
+</head>
+
+<body data-page="actual">
+
+{% include "components/navbar_header.html" %}
+
+<div class="main-nav">
+    <a href="/base-stock">Base Stock</a>
+    <a href="/actual-stock">Actual Stock</a>
+    <a href="/requirement-report">Report</a>
+    <a href="/order-sheet">Order Sheet</a>
+    <a href="/custom-order-generation">Custom Order</a>
+    <a href="/users">Users</a>
+</div>
+
+<h1>ACTUAL STOCK</h1>
+
+<div class="top-bar">
+    <div class="card">
+        <h3>Total Actual Qty</h3>
+        <h2>{{ total_actual }}</h2>
+    </div>
+</div>
+
+
+<!-- EXCEL UPLOAD -->
+
+<form action="/upload-actual-stock" method="POST" enctype="multipart/form-data">
+
+    <input type="file" name="file">
+
+    <button class="btn" type="submit">
+        Upload Excel
+    </button>
+
+    <button 
+        class="btn btn-danger"
+        name="replace"
+        value="1"
+        onclick="return confirm('Are you sure? This will delete all existing actual stock data.')"
+    >
+        Replace Whole Data
+    </button>
+
+    <a class="btn" href="/export-actual-stock">
+        Export Excel
+    </a>
+
+</form>
+
+<br>
+
+<!-- FILTERS -->
+
+<form method="GET">
+
+    {% include 'components/common_filters.html' %}
+    
+</form>
+
+<br>
+
+<!-- ADD STOCK -->
+
+<form action="/add-actual-stock" method="POST">
+
+
+
+</form>
+
+<!-- TABLE -->
+
+<table>
+
+<tr>
+
+    <th>EBO</th>
+    <th>PRODUCT</th>
+    <th>COLOR</th>
+    <th>SIZE</th>
+    <th>ACTUAL QTY</th>
+    <th>ACTION</th>
+
+</tr>
+
+{% for r in rows %}
+
+<tr>
+
+    <td>{{ r.ebo }}</td>
+    <td>{{ r.product }}</td>
+    <td>{{ r.color }}</td>
+    <td>{{ r.size }}</td>
+    <td>{{ r.actual_qty }}</td>
+
+    <td>
+
+        <a class="btn" href="/edit-actual-stock/{{ r.id }}">
+            Edit
+        </a>
+
+        <a 
+            class="btn btn-danger"
+            href="/delete-actual-stock/{{ r.id }}?{{ request.query_string.decode() }}"
+            onclick="return confirm('Delete this row?')"
+        >
+            Delete
+        </a>
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+</body>
+</html>

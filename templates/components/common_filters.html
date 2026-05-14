@@ -1,0 +1,244 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<div class="filters">
+
+    <div class="filter-field">
+        <label>EBO</label>
+
+        <select id="ebo" name="ebo" multiple class="multi-select">
+
+            {% for e in ebos %}
+
+            <option value="{{ e[0] }}"
+            {% if e[0] in ebo_filter or e[0] in ebos_selected %}
+            selected
+            {% endif %}
+            >
+                {{ e[0] }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+    </div>
+
+    <div class="filter-field">
+        <label>PRODUCT</label>
+
+        <select id="product" name="product" multiple class="multi-select">
+
+            {% for p in products %}
+
+            <option value="{{ p[0] }}"
+            {% if p[0] in product_filter or p[0] in products_selected %}
+            selected
+            {% endif %}
+            >
+                {{ p[0] }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+    </div>
+
+    <div class="filter-field">
+        <label>COLOR</label>
+
+        <select id="color" name="color" multiple class="multi-select">
+
+            {% for c in colors %}
+
+            <option value="{{ c[0] }}"
+            {% if c[0] in color_filter or c[0] in colors_selected %}
+            selected
+            {% endif %}
+            >
+                {{ c[0] }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+    </div>
+
+    <div class="filter-field">
+        <label>SIZE</label>
+
+        <select id="size" name="size" multiple class="multi-select">
+
+            {% for s in sizes %}
+
+            <option value="{{ s[0] }}"
+            {% if s[0] in size_filter or s[0] in sizes_selected %}
+            selected
+            {% endif %}
+            >
+                {{ s[0] }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+    </div>
+    <div class="filter-field">
+
+        <label>&nbsp;</label>
+
+        <button class="filter-btn" type="submit">
+            Apply Filters
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let eboChoice;
+let productChoice;
+let colorChoice;
+let sizeChoice;
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    eboChoice = new Choices('#ebo', {
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false
+    });
+
+    productChoice = new Choices('#product', {
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false
+    });
+
+    colorChoice = new Choices('#color', {
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false
+    });
+
+    sizeChoice = new Choices('#size', {
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false
+    });
+
+    document.getElementById("ebo")
+        .addEventListener("change", function() {
+            loadFilters("ebo");
+        });
+
+    document.getElementById("product")
+        .addEventListener("change", function() {
+            loadFilters("product");
+        });
+
+    document.getElementById("color")
+        .addEventListener("change", function() {
+            loadFilters("color");
+        });
+
+});
+
+function loadFilters(type) {
+
+    const ebo = getSelected("ebo");
+    const product = getSelected("product");
+    const color = getSelected("color");
+
+    const params = new URLSearchParams();
+
+    ebo.forEach(v => params.append("ebo", v));
+    product.forEach(v => params.append("product", v));
+    color.forEach(v => params.append("color", v));
+
+    const page =
+        document.body.dataset.page;
+
+    params.append("page", page);
+
+    fetch("/get-dependent-filters?" + params.toString())
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(type === "ebo"){
+
+            updateChoices(
+                productChoice,
+                data.products
+            );
+
+            updateChoices(
+                colorChoice,
+                data.colors
+            );
+
+            updateChoices(
+                sizeChoice,
+                data.sizes
+            );
+        }
+
+        else if(type === "product"){
+
+            updateChoices(
+                colorChoice,
+                data.colors
+            );
+
+            updateChoices(
+                sizeChoice,
+                data.sizes
+            );
+        }
+
+        else if(type === "color"){
+
+            updateChoices(
+                sizeChoice,
+                data.sizes
+            );
+        }
+
+    });
+
+}
+
+function getSelected(id){
+
+    return Array.from(
+        document.getElementById(id).selectedOptions
+    ).map(o => o.value);
+
+}
+
+function updateChoices(choiceInstance, values){
+
+    const selectedValues =
+        choiceInstance.getValue(true);
+
+    choiceInstance.clearStore();
+
+    choiceInstance.setChoices(
+
+        values.map(v => ({
+            value: v,
+            label: v,
+            selected: selectedValues.includes(v)
+        })),
+
+        'value',
+        'label',
+        true
+    );
+
+}
+
+</script>

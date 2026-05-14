@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add User</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1e293b;
+            box-shadow: 0 0 5px rgba(30, 41, 59, 0.3);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button,
+        a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        button[type="submit"] {
+            background: #10b981;
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .role-description {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .role-description h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .role-description ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .role-description li {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include "components/navbar_header.html" %}
+
+    <div class="main-nav">
+        <a href="/base-stock">Base Stock</a>
+        <a href="/actual-stock">Actual Stock</a>
+        <a href="/requirement-report">Report</a>
+        <a href="/order-sheet">Order Sheet</a>
+        <a href="/custom-order-generation">Custom Order</a>
+        <a href="/users">Users</a>
+    </div>
+
+    <div class="container">
+        <h1>Add New User</h1>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <div class="hint">Note: Store passwords securely. Consider hashing in production.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required onchange="updateRoleInfo()">
+                    <option value="viewer">Viewer (Read-only access)</option>
+                    <option value="manager">Manager (Edit & manage orders)</option>
+                    <option value="admin">Admin (Full access & user management)</option>
+                </select>
+            </div>
+
+            <div class="role-description" id="role-info">
+                <h3>Viewer Permissions</h3>
+                <ul>
+                    <li>View Base Stock</li>
+                    <li>View Actual Stock</li>
+                    <li>View Order Sheet</li>
+                    <li>View Requirement Report</li>
+                </ul>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit">Create User</button>
+                <a href="/users" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function updateRoleInfo() {
+            const role = document.getElementById('role').value;
+            const infoDiv = document.getElementById('role-info');
+
+            if (role === 'viewer') {
+                infoDiv.innerHTML = `
+                    <h3>Viewer Permissions</h3>
+                    <ul>
+                        <li>View Base Stock</li>
+                        <li>View Actual Stock</li>
+                        <li>View Order Sheet</li>
+                        <li>View Requirement Report</li>
+                    </ul>
+                `;
+            } else if (role === 'manager') {
+                infoDiv.innerHTML = `
+                    <h3>Manager Permissions</h3>
+                    <ul>
+                        <li>View & Edit Base Stock</li>
+                        <li>Upload Base Stock</li>
+                        <li>View & Edit Actual Stock</li>
+                        <li>Add, Edit & Complete Orders</li>
+                        <li>Export Reports</li>
+                        <li>View & Generate Custom Orders</li>
+                    </ul>
+                `;
+            } else if (role === 'admin') {
+                infoDiv.innerHTML = `
+                    <h3>Admin Permissions</h3>
+                    <ul>
+                        <li>Full access to all features</li>
+                        <li>View, Edit & Delete Base Stock</li>
+                        <li>Upload Base Stock</li>
+                        <li>Manage Actual Stock</li>
+                        <li>Full Order Management</li>
+                        <li>Export Reports</li>
+                        <li>Custom Order Generation</li>
+                        <li><strong>Manage Users & Permissions</strong></li>
+                    </ul>
+                `;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
