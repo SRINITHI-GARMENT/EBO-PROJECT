@@ -1208,14 +1208,106 @@ def generate_order_sheet():
 
     return redirect("/order-sheet")
 
+from collections import defaultdict
+
+
 @app.route("/view-order/<int:id>")
 @login_required
 def view_order(id):
+
     row = OrderSheet.query.get_or_404(id)
-    all_rows = OrderSheet.query.filter_by(order_sheet_no=row.order_sheet_no).all()
-    return render_template("view_order.html", rows=all_rows, order_sheet_no=row.order_sheet_no)
 
+    all_rows = OrderSheet.query.filter_by(
+        order_sheet_no=row.order_sheet_no
+    ).all()
 
+    grouped_data = defaultdict(lambda: defaultdict(list))
+
+    grand_totals = {}
+
+    # ================= GROUP DATA =================
+
+    for r in all_rows:
+
+        product = r.product
+        color = r.color
+
+        size_data = {
+            "ebo": r.ebo,
+            "s": 0,
+            "m": 0,
+            "l": 0,
+            "xl": 0,
+            "xxl": 0,
+            "xxxl": 0,
+            "xxxxl": 0
+        }
+
+        size_name = str(r.size).strip().upper()
+
+        if size_name == "S":
+            size_data["s"] = r.qty
+
+        elif size_name == "M":
+            size_data["m"] = r.qty
+
+        elif size_name == "L":
+            size_data["l"] = r.qty
+
+        elif size_name == "XL":
+            size_data["xl"] = r.qty
+
+        elif size_name == "2XL":
+            size_data["xxl"] = r.qty
+
+        elif size_name == "3XL":
+            size_data["xxxl"] = r.qty
+
+        elif size_name == "4XL":
+            size_data["xxxxl"] = r.qty
+
+        grouped_data[product][color].append(size_data)
+
+    # ================= GRAND TOTALS =================
+
+    for product, colors in grouped_data.items():
+
+        totals = {
+            "s": 0,
+            "m": 0,
+            "l": 0,
+            "xl": 0,
+            "xxl": 0,
+            "xxxl": 0,
+            "xxxxl": 0
+        }
+
+        for color_rows in colors.values():
+
+            for r in color_rows:
+
+                totals["s"] += r["s"]
+                totals["m"] += r["m"]
+                totals["l"] += r["l"]
+                totals["xl"] += r["xl"]
+                totals["xxl"] += r["xxl"]
+                totals["xxxl"] += r["xxxl"]
+                totals["xxxxl"] += r["xxxxl"]
+
+        grand_totals[product] = totals
+
+    return render_template(
+
+        "view_order.html",
+
+        grouped_data=grouped_data,
+        grand_totals=grand_totals,
+
+        order_sheet_no=row.order_sheet_no,
+        order_date=row.order_date,
+        status=row.status
+
+    )
 
 
 
