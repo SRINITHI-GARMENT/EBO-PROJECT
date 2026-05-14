@@ -10,6 +10,7 @@ from urllib.parse import quote_plus
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
+from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -1221,9 +1222,9 @@ def view_order(id):
         order_sheet_no=row.order_sheet_no
     ).all()
 
-    grouped_data = defaultdict(lambda: defaultdict(list))
+    grouped_data = defaultdict(lambda: defaultdict(dict))
 
-    grand_totals = {}
+    all_sizes = set()
 
     # ================= GROUP DATA =================
 
@@ -1231,68 +1232,38 @@ def view_order(id):
 
         product = r.product
         color = r.color
+        ebo = r.ebo
+        size = str(r.size).strip()
 
-        size_data = {
-            "ebo": r.ebo,
-            "s": 0,
-            "m": 0,
-            "l": 0,
-            "xl": 0,
-            "xxl": 0,
-            "xxxl": 0,
-            "xxxxl": 0
-        }
+        all_sizes.add(size)
 
-        size_name = str(r.size).strip().upper()
+        if ebo not in grouped_data[product][color]:
 
-        if size_name == "S":
-            size_data["s"] = r.qty
+            grouped_data[product][color][ebo] = {
+                "ebo": ebo,
+                "sizes": defaultdict(int)
+            }
 
-        elif size_name == "M":
-            size_data["m"] = r.qty
+        grouped_data[product][color][ebo]["sizes"][size] += r.qty
 
-        elif size_name == "L":
-            size_data["l"] = r.qty
-
-        elif size_name == "XL":
-            size_data["xl"] = r.qty
-
-        elif size_name == "2XL":
-            size_data["xxl"] = r.qty
-
-        elif size_name == "3XL":
-            size_data["xxxl"] = r.qty
-
-        elif size_name == "4XL":
-            size_data["xxxxl"] = r.qty
-
-        grouped_data[product][color].append(size_data)
+    # SORT SIZES
+    all_sizes = sorted(all_sizes)
 
     # ================= GRAND TOTALS =================
 
+    grand_totals = {}
+
     for product, colors in grouped_data.items():
 
-        totals = {
-            "s": 0,
-            "m": 0,
-            "l": 0,
-            "xl": 0,
-            "xxl": 0,
-            "xxxl": 0,
-            "xxxxl": 0
-        }
+        totals = defaultdict(int)
 
         for color_rows in colors.values():
 
-            for r in color_rows:
+            for row_data in color_rows.values():
 
-                totals["s"] += r["s"]
-                totals["m"] += r["m"]
-                totals["l"] += r["l"]
-                totals["xl"] += r["xl"]
-                totals["xxl"] += r["xxl"]
-                totals["xxxl"] += r["xxxl"]
-                totals["xxxxl"] += r["xxxxl"]
+                for size, qty in row_data["sizes"].items():
+
+                    totals[size] += qty
 
         grand_totals[product] = totals
 
@@ -1302,6 +1273,7 @@ def view_order(id):
 
         grouped_data=grouped_data,
         grand_totals=grand_totals,
+        all_sizes=all_sizes,
 
         order_sheet_no=row.order_sheet_no,
         order_date=row.order_date,
