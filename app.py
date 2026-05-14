@@ -1455,7 +1455,10 @@ def login():
             if not password_matches and user.password == password:
                 password_matches = True
                 user.password = generate_password_hash(password)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
 
             if password_matches:
                 session["user_id"] = user.id
@@ -1478,17 +1481,24 @@ def ensure_password_column_size():
     # If so, enlarge it to support hashed passwords.
     try:
         result = db.session.execute(
-            "SELECT character_maximum_length FROM information_schema.columns "
-            "WHERE table_name='users' AND column_name='password'"
+            text(
+                "SELECT character_maximum_length FROM information_schema.columns "
+                "WHERE table_name='users' AND column_name='password'"
+            )
         ).fetchone()
-    except Exception:
+    except Exception as exc:
+        print("ensure_password_column_size failed:", exc)
         return
 
     if result and result[0] is not None and result[0] < 255:
-        db.session.execute(
-            text("ALTER TABLE public.users ALTER COLUMN password TYPE VARCHAR(255);")
-        )
-        db.session.commit()
+        try:
+            db.session.execute(
+                text("ALTER TABLE public.users ALTER COLUMN password TYPE VARCHAR(255);")
+            )
+            db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            print("password column resize failed:", exc)
 
 
 with app.app_context():
