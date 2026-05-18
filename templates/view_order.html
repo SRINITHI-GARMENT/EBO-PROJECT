@@ -264,7 +264,17 @@
 
                         {% endfor %}
 
-                        <td>{{ grand_totals[product].values() | sum }}</td>
+                        {% set ns = namespace(color_total=0) %}
+
+                        {% for ebo_data in ebos.values() %}
+
+                            {% for qty in ebo_data.sizes.values() %}
+                                {% set ns.color_total = ns.color_total + qty %}
+                            {% endfor %}
+
+                        {% endfor %}
+
+                        <td>{{ ns.color_total }}</td>
 
                     </tr>
 
