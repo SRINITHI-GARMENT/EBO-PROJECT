@@ -230,42 +230,142 @@
             <input type="hidden" name="filter_size" value="{{ value }}">
         {% endfor %}
 
-        <div style="margin-bottom:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <button class="freeze-btn" type="submit" style="background:#2563eb;">
-                Freeze Selected
-            </button>
-            <button type="button" id="mark_all" style="background:#1e293b; color:white; border:none; padding:8px 12px; cursor:pointer;">
-                Mark All
-            </button>
-            <button type="button" id="clear_all" style="background:#64748b; color:white; border:none; padding:8px 12px; cursor:pointer;">
-                Clear All
-            </button>
-        </div>
-
         <div style="
+            margin-bottom:14px;
             display:flex;
-            gap:20px;
-            flex-wrap:wrap;
-            margin-bottom:15px;
-            background:white;
-            padding:15px;
-            border-radius:8px;
-            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+            gap:10px;
+            align-items:center;
+            overflow-x:auto;
+            white-space:nowrap;
+            padding-bottom:5px;
         ">
 
-            <div><b>Total Base Qty:</b> {{ report_data | sum(attribute='base_qty') }}</div>
+            <!-- BUTTONS -->
 
-            <div><b>Total Actual Qty:</b> {{ report_data | sum(attribute='actual_qty') }}</div>
+            <button class="freeze-btn" type="submit" style="
+                background:#2563eb;
+                height:45px;
+                padding:0 16px;
+                border-radius:8px;
+                flex-shrink:0;
+            ">
+                Freeze Selected
+            </button>
 
-            <div><b>Total Process Qty:</b> {{ report_data | sum(attribute='process_qty') }}</div>
+            <button type="button" id="mark_all" style="
+                background:#1e293b;
+                color:white;
+                border:none;
+                height:45px;
+                padding:0 16px;
+                cursor:pointer;
+                border-radius:8px;
+                flex-shrink:0;
+            ">
+                Mark All
+            </button>
 
-            <div><b>Total Frozen Qty:</b> {{ report_data | sum(attribute='frozen_qty') }}</div>
+            <button type="button" id="clear_all" style="
+                background:#64748b;
+                color:white;
+                border:none;
+                height:45px;
+                padding:0 16px;
+                cursor:pointer;
+                border-radius:8px;
+                flex-shrink:0;
+            ">
+                Clear All
+            </button>
 
-            <div><b>Total Requirement Qty:</b> {{ report_data | sum(attribute='requirement_qty') }}</div>
+            <!-- TOTAL CARDS -->
 
-            <div><b>Total Order Qty:</b> {{ report_data | sum(attribute='order_qty') }}</div>
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Base Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='base_qty') }}
+                </div>
+            </div>
+
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Actual Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='actual_qty') }}
+                </div>
+            </div>
+
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Process Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='process_qty') }}
+                </div>
+            </div>
+
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Frozen Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='frozen_qty') }}
+                </div>
+            </div>
+
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Requirement Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='requirement_qty') }}
+                </div>
+            </div>
+
+            <div style="
+                background:white;
+                min-width:140px;
+                padding:12px 15px;
+                border-radius:10px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                flex-shrink:0;
+            ">
+                <div style="font-size:13px; color:#64748b;">Order Qty</div>
+                <div style="font-size:24px; font-weight:bold;">
+                    {{ report_data | sum(attribute='order_qty') }}
+                </div>
+            </div>
 
         </div>
+       
 
         <table>
 
