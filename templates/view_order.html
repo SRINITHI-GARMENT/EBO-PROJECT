@@ -234,14 +234,15 @@
 
                         <td>{{ ebo_data.ebo }}</td>
 
-                        {% set row_total = 0 %}
+                        {% set ns = namespace(row_total=0) %}
+
                         {% for size in all_sizes %}
                             {% set qty = ebo_data.sizes.get(size, 0) %}
                             <td>{{ qty if qty else '' }}</td>
-                            {% set row_total = row_total + qty %}
+                            {% set ns.row_total = ns.row_total + qty %}
                         {% endfor %}
 
-                        <td>{{ row_total }}</td>
+                        <td>{{ ns.row_total }}</td>
 
                     </tr>
 
@@ -252,11 +253,15 @@
                         <td>TOTAL</td>
 
                         {% for size in all_sizes %}
-                            {% set size_total = 0 %}
+
+                            {% set ns = namespace(size_total=0) %}
+
                             {% for ebo_data in ebos.values() %}
-                                {% set size_total = size_total + (ebo_data.sizes.get(size, 0) or 0) %}
+                                {% set ns.size_total = ns.size_total + (ebo_data.sizes.get(size, 0) or 0) %}
                             {% endfor %}
-                            <td>{{ size_total }}</td>
+
+                            <td>{{ ns.size_total }}</td>
+
                         {% endfor %}
 
                         {% set product_total = 0 %}
@@ -273,9 +278,10 @@
 
                 {% endfor %}
 
-                {% set grand_total_sum = 0 %}
+                {% set ns = namespace(grand_total_sum=0) %}
+
                 {% for val in grand_totals[product].values() %}
-                    {% set grand_total_sum = grand_total_sum + val %}
+                    {% set ns.grand_total_sum = ns.grand_total_sum + val %}
                 {% endfor %}
 
                 <tr class="grand-total">
@@ -286,7 +292,7 @@
                     <td>{{ grand_totals[product].get(size, 0) }}</td>
                     {% endfor %}
 
-                    <td>{{ grand_total_sum }}</td>
+                    <td>{{ ns.grand_total_sum }}</td>
 
                 </tr>
 
