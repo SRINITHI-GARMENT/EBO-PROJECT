@@ -242,6 +242,31 @@
             </button>
         </div>
 
+        <div style="
+            display:flex;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:15px;
+            background:white;
+            padding:15px;
+            border-radius:8px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        ">
+
+            <div><b>Total Base Qty:</b> {{ report_data | sum(attribute='base_qty') }}</div>
+
+            <div><b>Total Actual Qty:</b> {{ report_data | sum(attribute='actual_qty') }}</div>
+
+            <div><b>Total Process Qty:</b> {{ report_data | sum(attribute='process_qty') }}</div>
+
+            <div><b>Total Frozen Qty:</b> {{ report_data | sum(attribute='frozen_qty') }}</div>
+
+            <div><b>Total Requirement Qty:</b> {{ report_data | sum(attribute='requirement_qty') }}</div>
+
+            <div><b>Total Order Qty:</b> {{ report_data | sum(attribute='order_qty') }}</div>
+
+        </div>
+
         <table>
 
             <tr>
