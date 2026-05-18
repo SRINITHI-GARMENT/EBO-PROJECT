@@ -264,11 +264,7 @@
 
                         {% endfor %}
 
-                        {% set product_total = 0 %}
-                        {% for val in grand_totals[product].values() %}
-                            {% set product_total = product_total + val %}
-                        {% endfor %}
-                        <td>{{ product_total }}</td>
+                        <td>{{ grand_totals[product].values() | sum }}</td>
 
                     </tr>
 
