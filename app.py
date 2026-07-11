@@ -988,7 +988,7 @@ def custom_order_generation():
         process_qty = process_map.get(key, 0)
         frozen_qty = frozen_map.get(key, 0)
 
-        requirement_qty = b.qty - actual_qty + process_qty - frozen_qty
+        requirement_qty = b.qty - actual_qty - process_qty - frozen_qty
 
         if requirement_qty <= 0:
             continue
